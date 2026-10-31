@@ -1,4 +1,6 @@
 # Nodal - facial comparison with forensic report
+
+## Run
     python -m venv .venv && source .venv/bin/activate     # Python 3.10 or 3.11 recommended
     pip install -r requirements.txt
     uvicorn backend.main:app --port 8000
@@ -15,11 +17,11 @@ If InsightFace fails to load, the app still runs but reports "Inconclusive" beca
 2. Plug in your deepfake detector: `DEEPFAKE_DETECTOR="deepfake_detector:predict"` where `predict(bgr_image) -> float`.
 3. Add authentication, HTTPS and rate limiting before exposing it publicly.
 
-## Security setup
+## Security setup (new)
 **1. Create the first admin (there are no default passwords):**
 
     python -m backend.manage create-user admin --role admin
-    python -m backend.manage create-user (USERNAME)           # examiner account
+    python -m backend.manage create-user alice            # examiner account
 Other commands: `set-password`, `delete-user`, `list-users`, `verify-audit`.
 
 **2. HTTPS.** Browsers send login cookies safely only over HTTPS; set `NODAL_HTTPS=1` once you serve over HTTPS (adds Secure cookies and HSTS).
@@ -47,7 +49,7 @@ The rate limiter is in memory, so run a single worker process or move it to Redi
     python -m backend.benchmark                       # after every change: exits 1 if AUC or EER got worse
 `pytest` runs the same check automatically when `benchmark/pairs.csv` and `baseline.json` exist. The thresholds it prints (`threshold_fmr_1e-3`, etc.) are what you use to calibrate `COS_CUTS`. Add your own realistic pairs to `pairs.csv` (columns `path_a,path_b,label`) to benchmark on your real conditions.
 
-## Desktop app for Windows
+## Desktop app for Windows (new)
 No login: on first launch the operator fills in a details form (name, organisation, designation, email, country, purpose, terms). The details stay on the computer (`%LOCALAPPDATA%\Nodal`), appear on every PDF report and in the audit log. A tick-box to share these details with the developer appears only if you set an endpoint, and only those form fields are ever sent (never images, results or hashes). The server listens on 127.0.0.1 only and rejects requests that did not come from the launcher.
 
 Try it without building: `$env:NODAL_MODE="desktop"; uvicorn backend.main:app --port 8000`.
@@ -55,7 +57,7 @@ Try it without building: `$env:NODAL_MODE="desktop"; uvicorn backend.main:app --
 Build the installer: `powershell -File build_windows.ps1` (needs Inno Setup for the .exe installer). To publish on GitHub: `git tag v1.0; git push origin v1.0` and the `release` workflow attaches `Nodal-Setup.exe` to a GitHub Release. To receive opt-in registrations, add a repository secret `NODAL_REGISTRATION_URL` pointing at a write-only webhook or form service (it is visible to anyone who unpacks the app, so never put a secret in it).
 Check the licences before distributing: the InsightFace pretrained models are, as far as I know, for non-commercial research use only. Windows will warn about an unsigned installer ("More info", then "Run anyway").
 
-## Android, iPhone and tablets: hosted mode
+## Android, iPhone and tablets (new): hosted mode
 The face engine (MediaPipe, InsightFace, OpenCV) cannot run inside an Android app, so phones use Nodal as a web service you host, installed from the browser:
 1. Host it (HTTPS required for install): `docker build -t nodal .` then run the container on a server or a Hugging Face Space (Docker SDK, port 7860). Set secrets `NODAL_SECRET` (long random text) and, to stop strangers using it, `NODAL_INVITE_CODE`.
 2. On Android open the address in Chrome, menu, **Install app** (or **Add to Home screen**). It then opens full screen like an app, and the camera or gallery is offered when choosing a photo.
@@ -63,16 +65,16 @@ The face engine (MediaPipe, InsightFace, OpenCV) cannot run inside an Android ap
 Hosted mode has no passwords: each device registers once with the operator form (details are self-declared and not verified), and each person sees only their own cases. See registrations on the server with `python -m backend.manage list-operators`; the audit log works as before. Free hosts often wipe the disk on restart, which would erase registrations and the audit log, so mount a persistent volume on `NODAL_DATA_DIR` if you need them kept.
 Photos from phones are uploaded unchanged (so the hash and ELA stay valid); the limit is 25 MB per image.
 
-## Age-gap safeguard
+## Age-gap safeguard (new)
 The face model estimates each person's age (roughly, often several years off). The examiner can also enter the known gap, which takes priority. Provisional rules in `backend/engine.py`: gap of 5+ years moves the verdict one step toward inconclusive; 10+ years means no "different identities" verdict and no "strong" same-identity verdict; 20+ years, or a face estimated under 14, gives "Inconclusive". The geometry cross-check is skipped across age gaps. Age estimates and the cut-offs are uncalibrated, so measure them on your own data.
 
-## Group photo search
+## Group photo search (new)
 Tick "Image A is a group photo", upload the group photo as A and the person's reference as B. Nodal finds every face (up to 80), ranks them by similarity to the reference and draws numbered boxes; the examiner clicks the face to compare, and the normal report is produced for that face (the PDF also shows the group photo with the chosen face marked, how many faces were searched, and that the examiner made the selection). Tiny faces (under about 30 px) can be missed. The group photo is kept at up to 3000 px so faces stay usable; deleting the case also deletes the stored group photo.
 
 ## Which face is compared (changed)
 If an image contains several faces of similar size, Nodal now refuses to guess and tells the examiner to crop the photo (or, for image A, tick "group photo" and choose the face). The landmark tool and the recognition model always use the same face. The benchmark picks the face nearest the image centre (LFW centres the target person), caches every detected face, and its baseline must be re-recorded once: `python -m backend.benchmark --update-baseline` (about 40 minutes the first time, then rule changes are instant).
 
-## Calibrating the verdict cut-offs:
+## Calibrating the verdict cut-offs (new)
 After `python -m backend.benchmark --update-baseline`, run `python -m backend.calibrate` (seconds). It estimates false-match rates from tens of millions of different-person pairs and writes `backend/calibration.json` (strong same = 1 in 100,000 false matches, moderate same = 1 in 1,000, moderate different = below the score 99% of different-person pairs stay under, strong different = below the 0.1th percentile of same-person scores, all moved 0.05 toward inconclusive). The app loads the file at start-up and the PDF states the calibration basis. LFW is easier than most casework, so validate on images like yours before relying on the verdict labels.
 
 ## Download and run on Windows (no installer needed)
