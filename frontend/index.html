@@ -1,0 +1,172 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Nodal - facial comparison</title>
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#1B2A35">
+<link rel="apple-touch-icon" href="icons/icon-192.png">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Newsreader:wght@500;600&family=Instrument+Sans:wght@400;500;600&display=swap">
+<style>
+:root{--bench:#E6EBEE;--paper:#F7F9FA;--ink:#1B2A35;--muted:#5B6B76;--line:#C9D3D9;--signal:#0B7285;--flag:#B7791F;--alert:#A8403F;--ok:#2F6F4F;
+--serif:"Newsreader",Georgia,serif;--sans:"Instrument Sans",system-ui,-apple-system,"Segoe UI",sans-serif}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bench);color:var(--ink);font:15px/1.55 var(--sans);font-variant-numeric:tabular-nums}
+a{color:var(--signal)}
+:focus-visible{outline:2px solid var(--signal);outline-offset:2px}
+header{display:flex;justify-content:space-between;align-items:baseline;padding:18px clamp(16px,4vw,48px);border-bottom:1px solid var(--line)}
+header h1{font:600 26px var(--serif);margin:0}
+header span{color:var(--muted);font-size:13px}
+main{max-width:1120px;margin:0 auto;padding:28px clamp(16px,4vw,48px) 64px}
+h2{font:600 21px var(--serif);margin:0 0 12px}
+section{margin-bottom:36px}
+.panel{background:var(--paper);border:1px solid var(--line);border-radius:6px;padding:20px}
+.drops{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.drop{position:relative;border:1.5px dashed var(--line);border-radius:6px;min-height:230px;display:grid;place-items:center;text-align:center;color:var(--muted);cursor:pointer;overflow:hidden;background:#fff}
+.drop:hover,.drop.over{border-color:var(--signal)}
+.drop input{position:absolute;inset:0;opacity:0;cursor:pointer}
+.drop img{position:absolute;inset:0;width:100%;height:100%;object-fit:contain;background:#fff}
+.drop b{display:block;color:var(--ink);font-weight:600}
+.fields{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin:16px 0}
+label.f{display:block;font-size:13px;color:var(--muted)}
+label.f input{display:block;width:100%;margin-top:4px;padding:8px 10px;border:1px solid var(--line);border-radius:4px;font:inherit;color:var(--ink);background:#fff}
+.consent{display:flex;gap:10px;align-items:flex-start;font-size:13.5px;margin-bottom:16px}
+button{font:600 15px var(--sans);border-radius:4px;padding:10px 18px;cursor:pointer;border:1px solid var(--signal);background:var(--signal);color:#fff}
+button.ghost{background:transparent;color:var(--signal)} button.warn{border-color:var(--alert);color:var(--alert);background:transparent}
+button:disabled{opacity:.5;cursor:not-allowed}
+#msg{margin-left:12px;color:var(--muted);font-size:14px} #msg.err{color:var(--alert)}
+.verdict{display:grid;grid-template-columns:1fr;gap:14px}
+.verdict h3{font:600 28px var(--serif);margin:0}
+.rail{display:grid;grid-template-columns:repeat(5,1fr);gap:3px;margin-top:4px}
+.rail i{height:8px;background:var(--line);border-radius:2px}.rail i.on{background:var(--signal)}
+.railtxt{display:flex;justify-content:space-between;font-size:12px;color:var(--muted)}
+.flags{margin:0;padding-left:18px;color:var(--flag)}
+.grid{display:grid;grid-template-columns:minmax(0,1.5fr) minmax(0,1fr);gap:20px;align-items:start}
+.tabs{display:flex;gap:6px;margin-bottom:10px}
+.tabs button{background:transparent;color:var(--ink);border-color:var(--line);padding:6px 12px;font-weight:500}
+.tabs button[aria-pressed=true]{background:var(--ink);color:#fff;border-color:var(--ink)}
+.stage{position:relative;background:#fff;border:1px solid var(--line);border-radius:4px;line-height:0}
+.stage img,.stage canvas{width:100%;height:auto;display:block}
+.stage img+img,.stage canvas{position:absolute;inset:0}
+.toggles{display:flex;flex-wrap:wrap;gap:4px 14px;margin-top:10px;font-size:13px;line-height:1.3}
+table{width:100%;border-collapse:collapse;font-size:13.5px}
+th{text-align:left;font-weight:600;color:var(--muted);border-bottom:1px solid var(--ink);padding:6px 8px 6px 0}
+td{border-bottom:1px solid var(--line);padding:6px 8px 6px 0}
+.bar{height:6px;background:var(--line);border-radius:3px;min-width:70px}.bar i{display:block;height:100%;background:var(--signal);border-radius:3px}
+.metric{display:flex;justify-content:space-between;border-bottom:1px solid var(--line);padding:8px 0}.metric b{font-size:18px}
+.actions{display:flex;flex-wrap:wrap;gap:10px;margin-top:8px}
+.note{color:var(--muted);font-size:13px;max-width:70ch}
+.hidden{display:none}
+.login{max-width:380px;margin:40px auto}.login label.f{margin-bottom:12px}
+input:not([type=checkbox]):not([type=range]),select,button{min-height:44px}input,select{font-size:16px}
+.panel{overflow-x:auto}.tabs{flex-wrap:wrap}
+@media(max-width:820px){.drops,.fields,.grid{grid-template-columns:1fr}header{flex-direction:column;gap:6px}main{padding-top:16px}.drop{min-height:170px}.verdict h3{font-size:23px}}
+@media(prefers-reduced-motion:no-preference){.panel{transition:border-color .15s}}
+</style>
+</head>
+<body>
+<header><h1>Nodal</h1><div><span id="who">Facial comparison with a forensic report</span> <button class="ghost hidden" id="edit" style="margin-left:10px;padding:4px 12px">Edit my details</button><button class="ghost hidden" id="logout" style="margin-left:10px;padding:4px 12px">Sign out</button></div></header>
+<main>
+<section id="login" class="panel login hidden" aria-labelledby="tl">
+  <h2 id="tl">Sign in</h2>
+  <form id="loginform">
+    <label class="f">Username<input id="user" autocomplete="username" required></label>
+    <label class="f">Password<input id="pass" type="password" autocomplete="current-password" required></label>
+    <button type="submit">Sign in</button><span id="lmsg" class="note" role="alert" style="margin-left:12px;color:var(--alert)"></span>
+  </form>
+  <p class="note" style="margin-top:14px">Accounts are created by an administrator. Every comparison and download is recorded in an audit log.</p>
+</section>
+<section id="register" class="panel hidden" aria-labelledby="tr">
+  <h2 id="tr">Operator details</h2>
+  <p class="note">Record who is operating this software. These details are stored on this computer, printed on every report and written to the audit log.</p>
+  <form id="regform">
+    <div class="fields">
+      <label class="f">Full name *<input id="r_name" maxlength="120" required></label>
+      <label class="f">Organisation *<input id="r_organisation" maxlength="120" required></label>
+      <label class="f">Designation *<input id="r_designation" maxlength="120" required></label>
+      <label class="f">Email *<input id="r_email" type="email" maxlength="120" required></label>
+      <label class="f">Phone<input id="r_phone" maxlength="40"></label>
+      <label class="f">Country or jurisdiction *<input id="r_country" maxlength="120" required></label>
+    </div>
+    <label class="f" style="max-width:420px">Purpose of use *<select id="purpose" style="display:block;width:100%;margin-top:4px;padding:8px 10px;border:1px solid var(--line);border-radius:4px;font:inherit"></select></label>
+    <p class="note" style="margin-top:14px">Terms of use: use this software only with lawful authority and, where the law requires, the consent of the people shown. Results are decision support and must be reviewed by a qualified examiner. Do not use it to profile or surveil people without a legal basis. The software is provided as is, without warranty.</p>
+    <label class="f hidden" id="invitewrap" style="max-width:420px;margin-top:12px">Invitation code<input id="r_invite" autocomplete="off"></label>
+    <p class="note hidden" id="hostednote" style="margin-top:12px">On this service your details are stored with the administrator who runs it. Photos are deleted automatically after one hour.</p>
+    <label class="consent"><input type="checkbox" id="r_terms" required> <span>I accept the terms of use and confirm the details above are correct.</span></label>
+    <label class="consent hidden" id="sharewrap"><input type="checkbox" id="r_share"> <span>Optional: also send these details (name, organisation, designation, email, phone, country, purpose) to the developer. Photos, case details and results are never sent.</span></label>
+    <button type="submit">Save and continue</button><span id="rmsg" class="note" role="alert" style="margin-left:12px;color:var(--alert)"></span>
+  </form>
+</section>
+<section id="intake" class="panel hidden" aria-labelledby="t1">
+  <h2 id="t1">Compare two face images</h2>
+  <div class="drops">
+    <div class="drop" id="dropA"><input type="file" accept="image/jpeg,image/png,image/webp" id="fa" aria-label="Questioned image A"><div><b>Questioned image (A)</b>Drop a file, or tap to take a photo or choose one<br>JPEG, PNG or WebP, up to 25 MB</div></div>
+    <div class="drop" id="dropB"><input type="file" accept="image/jpeg,image/png,image/webp" id="fb" aria-label="Reference image B"><div><b>Reference image (B)</b>Drop a file, or tap to take a photo or choose one<br>Front-facing, even light works best</div></div>
+  </div>
+  <div class="fields">
+    <label class="f">Case reference<input id="ref" maxlength="80"></label>
+    <label class="f">Examiner<input id="exa" maxlength="80"></label>
+    <label class="f">Purpose of comparison<input id="pur" maxlength="200"></label>
+    <label class="f">Years between the photos, if known<input id="gap" type="number" min="0" max="90" inputmode="numeric"></label>
+  </div>
+  <label class="consent"><input type="checkbox" id="isgroup"> <span>Image A is a group photo: find the person who matches image B</span></label>
+  <label class="consent"><input type="checkbox" id="consent"> <span>I have the legal right to process these images and the consent of the people shown, where the law requires it. Images are deleted automatically after one hour.</span></label>
+  <button id="run" disabled>Run comparison</button><span id="msg" role="status"></span>
+</section>
+
+<section id="scan" class="panel hidden" aria-labelledby="ts">
+  <h2 id="ts">Find the person in the group photo</h2>
+  <p class="note" id="scannotes"></p>
+  <div class="grid">
+    <div class="stage"><img id="gimg" alt="Group photo with detected faces"><canvas id="gcv" style="cursor:pointer"></canvas></div>
+    <div><table id="gtab"></table><div class="actions"><button id="gdo" disabled>Compare selected face</button><button class="ghost" id="gback">Back</button></div><p class="note" id="gmsg" role="status"></p></div>
+  </div>
+</section>
+
+<div id="results" class="hidden">
+  <section class="panel verdict" aria-labelledby="t2">
+    <h2 id="t2">Conclusion</h2>
+    <h3 id="label"></h3>
+    <div><div class="rail" id="rail"></div><div class="railtxt"><span>Different identities</span><span>Inconclusive</span><span>Same identity</span></div></div>
+    <ul class="flags" id="flags"></ul>
+    <p class="note" id="rationale"></p>
+  </section>
+
+  <section class="grid" style="margin-top:28px">
+    <div class="panel">
+      <h2>Landmark viewer</h2>
+      <div class="tabs" role="group" aria-label="View"><button data-m="a" aria-pressed="true">Image A</button><button data-m="b" aria-pressed="false">Image B</button><button data-m="o" aria-pressed="false">Overlay</button></div>
+      <div class="stage"><img id="img1" alt="Compared face"><img id="img2" alt="Image B aligned to A" class="hidden"><canvas id="cv"></canvas></div>
+      <label class="f hidden" id="blendw" style="margin-top:10px">Blend A and aligned B<input type="range" id="blend" min="0" max="100" value="50"></label>
+      <div class="toggles" id="toggles"></div>
+    </div>
+    <div class="panel">
+      <h2>Scores</h2>
+      <div class="metric"><span>Embedding similarity (cosine)</span><b id="cos"></b></div>
+      <div class="metric"><span>Landmark agreement</span><b id="agr"></b></div>
+      <div class="metric"><span>Estimated age (A / B)</span><b id="ages"></b></div>
+      <div class="metric"><span>Mean proportion difference</span><b id="mpd"></b></div>
+      <p class="note" id="pts"></p>
+      <h2 style="margin-top:18px">Image quality</h2>
+      <table id="qual"></table>
+    </div>
+  </section>
+
+  <section class="panel" style="margin-top:28px"><h2>Region agreement</h2><table id="reg"></table></section>
+  <section class="panel" style="margin-top:28px"><h2>Facial proportions</h2><table id="rat"></table></section>
+  <section class="panel" style="margin-top:28px"><h2>Manipulation screening</h2><table id="int"></table><p class="note">Screening indicators only. They do not prove an image is authentic or forged.</p></section>
+
+  <section style="margin-top:28px">
+    <div class="actions">
+      <button id="pdf">Download PDF report</button><button class="ghost" id="json">Download data (JSON)</button>
+      <button class="warn" id="del">Delete this case now</button><button class="ghost" id="again">Start a new comparison</button>
+    </div>
+    <p class="note" id="expiry"></p>
+    <p class="note">Decision support only. Score thresholds are provisional until calibrated on your own validation data, and a qualified examiner must review any conclusion.</p>
+  </section>
+</div>
+</main>
+<script src="app.js"></script>
+</body>
+</html>

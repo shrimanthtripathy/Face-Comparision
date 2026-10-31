@@ -1,0 +1,14 @@
+{
+  "n_pos": 3000,
+  "n_neg": 3000,
+  "auc": 0.9994,
+  "eer": 0.0027,
+  "threshold_fmr_1e-2": 0.1404,
+  "fnmr_at_fmr_1e-2": 0.002,
+  "threshold_fmr_1e-3": 0.2117,
+  "fnmr_at_fmr_1e-3": 0.0027,
+  "fail_rate": 0.0,
+  "pairs": 6000,
+  "det_size": 320,
+  "face_rule": "central"
+}

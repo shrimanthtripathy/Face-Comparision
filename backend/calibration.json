@@ -1,0 +1,16 @@
+{
+  "cos_cuts": [
+    -0.023,
+    0.096,
+    0.253,
+    0.364
+  ],
+  "created": "2026-10-31",
+  "margin": 0.05,
+  "face_rule": "central",
+  "det_size": 320,
+  "n_positive_pairs": 3000,
+  "n_negative_pairs": 29640749,
+  "source": "LFW",
+  "rule": "strong same: false-match rate 1 in 100,000; moderate same: 1 in 1,000; moderate different: below the score 99% of different-person pairs stay under; strong different: below the 0.1th percentile of same-person scores; margin applied toward inconclusive"
+}

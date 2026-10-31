@@ -1,0 +1,13 @@
+name: tests
+on: [push, pull_request]
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: {python-version: "3.11"}
+      - run: pip install fastapi "uvicorn[standard]" python-multipart "numpy<2" opencv-python-headless pillow reportlab httpx pytest
+      - run: pytest -q
+      # Benchmark (needs models + images, so run it locally or on a runner that has them):
+      #   python -m backend.benchmark

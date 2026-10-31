@@ -1,0 +1,25 @@
+name: windows-installer
+on:
+  push:
+    tags: ["v*"]          # e.g.  git tag v1.0 && git push origin v1.0
+  workflow_dispatch:      # or run it by hand from the Actions tab
+permissions:
+  contents: write
+jobs:
+  windows:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: {python-version: "3.11"}
+      - name: Bake in the (optional) registration endpoint
+        shell: pwsh
+        env: {NODAL_REGISTRATION_URL: "${{ secrets.NODAL_REGISTRATION_URL }}"}
+        run: Set-Content backend/_endpoint.py "URL = '$env:NODAL_REGISTRATION_URL'"
+      - run: choco install innosetup -y
+      - run: powershell -File build_windows.ps1
+      - uses: actions/upload-artifact@v4
+        with: {name: Nodal-Setup, path: installer/Nodal-Setup.exe}
+      - uses: softprops/action-gh-release@v2
+        if: startsWith(github.ref, 'refs/tags/')
+        with: {files: installer/Nodal-Setup.exe}

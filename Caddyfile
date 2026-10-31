@@ -1,0 +1,5 @@
+# Automatic HTTPS (Let's Encrypt) for a real domain. Run:  caddy run
+nodal.example.com {
+    encode gzip
+    reverse_proxy 127.0.0.1:8000
+}
